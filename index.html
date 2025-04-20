@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jork-3.7-Epic AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f0ff',
+                            100: '#e0e0ff',
+                            200: '#c2c1ff',
+                            300: '#a3a1ff',
+                            400: '#8583ff',
+                            500: '#6663ff',
+                            600: '#5D5CDE',
+                            700: '#4b4ab2',
+                            800: '#383786',
+                            900: '#252459',
+                        },
+                        dark: {
+                            100: '#d5d5d5',
+                            200: '#ababab',
+                            300: '#808080',
+                            400: '#565656',
+                            500: '#2b2b2b',
+                            600: '#232323',
+                            700: '#1a1a1a',
+                            800: '#121212',
+                            900: '#0a0a0a',
+                        },
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'thinking': 'thinking 2s infinite',
+                    },
+                    keyframes: {
+                        thinking: {
+                            '0%, 100%': { opacity: '0.2' },
+                            '50%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* For WebKit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.7);
+        }
+
+        /* For Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+
+        /* Global styles */
+        .dark body {
+            background-color: #181818;
+            color: #e5e5e5;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            color: #1a1a1a;
+        }
+
+        .dot-typing {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            margin-right: 4px;
+            animation: thinking 1.5s infinite linear;
+        }
+
+        .dot-typing:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot-typing:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Conversation styles */
+        .message-container {
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-message {
+            background-color: #f9fafb;
+        }
+
+        .dark .user-message {
+            background-color: #1e1e1e;
+        }
+
+        .ai-message {
+            background-color: #ffffff;
+        }
+
+        .dark .ai-message {
+            background-color: #181818;
+        }
+
+        .message-content {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .message-content h1, .message-content h2, .message-content h3,
+        .message-content h4, .message-content h5, .message-content h6 {
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-content h1 {
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+        }
+
+        .message-content h2 {
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+
+        .message-content h3 {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+        }
+
+        .message-content p {
+            margin-bottom: 1rem;
+        }
+
+        .message-content ul, .message-content ol {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            margin-left: 1.25rem;
+        }
+
+        .message-content ul {
+            list-style-type: disc;
+        }
+
+        .message-content ol {
+            list-style-type: decimal;
+        }
+
+        .message-content li {
+            margin-bottom: 0.25rem;
+        }
+
+        .message-content pre {
+            background-color: #f3f4f6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .dark .message-content pre {
+            background-color: #2d2d2d;
+        }
+
+        .message-content code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875rem;
+            color: #616161;
+            background-color: #f3f4f6;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+        }
+
+        .dark .message-content code {
+            color: #d4d4d4;
+            background-color: #2d2d2d;
+        }
+
+        .message-content blockquote {
+            border-left: 4px solid #e5e7eb;
+            padding-left: 1rem;
+            margin-left: 0;
+            margin-right: 0;
+            font-style: italic;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .dark .message-content blockquote {
+            border-left-color: #4b5563;
+        }
+
+        .message-content a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .dark .message-content a {
+            color: #3b82f6;
+        }
+
+        .message-content table {
+            width: 100%;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border-collapse: collapse;
+        }
+
+        .message-content th, .message-content td {
+            border: 1px solid #e5e7eb;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        .dark .message-content th, .dark .message-content td {
+            border-color: #4b5563;
+        }
+
+        .message-content th {
+            font-weight: 600;
+            background-color: #f9fafb;
+        }
+
+        .dark .message-content th {
+            background-color: #374151;
+        }
+
+        .message-content tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .message-content tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        /* Syntax highlighting */
+        .hljs {
+            display: block;
+            overflow-x: auto;
+            padding: 1rem;
+            border-radius: 0.375rem;
+        }
+
+        /* Thinking process visualization */
+        .thinking-container {
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .dark .thinking-container {
+            background-color: #2d2d2d;
+        }
+
+        .thinking-article {
+            margin-bottom: 0.75rem;
+            padding: 1rem;
+            border-left: 3px solid #5D5CDE;
+            animation: fadeIn 0.5s ease-in;
+            line-height: 1.6;
+        }
+
+        .thinking-article h3 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4b5563;
+        }
+
+        .dark .thinking-article h3 {
+            color: #d1d5db;
+        }
+
+        .thinking-article p {
+            margin-bottom: 0.75rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Sidebar animation */
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
+        }
+
+        .sidebar-show {
+            animation: slideIn 0.3s forwards;
+        }
+
+        .sidebar-hide {
+            animation: slideOut 0.3s forwards;
+        }
+
+        /* File upload styling */
+        .file-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-container:hover {
+            border-color: #5D5CDE;
+        }
+
+        .dark .file-upload-container {
+            border-color: #4b5563;
+        }
+
+        .dark .file-upload-container:hover {
+            border-color: #5D5CDE;
+        }
+
+        /* News card styling */
+        .news-card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .news-card {
+            background-color: #1e1e1e;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark .news-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button animations */
+        .btn-hover-effect {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-hover-effect:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .btn-hover-effect:hover:before {
+            transform: translateX(0);
+        }
+
+        /* Animation for streaming effect */
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 0.5rem;
+            height: 1.25rem;
+            background-color: currentColor;
+            animation: blink 1s infinite;
+            margin-left: 2px;
+            vertical-align: middle;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: #4b5563;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            transition: all 0.3s ease;
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Search results styling */
+        .search-results {
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .dark .search-results {
+            background-color: #2d2d2d;
+        }
+
+        .search-result-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dark .search-result-item {
+            border-bottom-color: #4b5563;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: #2563eb;
+            margin-bottom: 0.25rem;
+        }
+
+        .dark .search-result-title {
+            color: #3b82f6;
+        }
+
+        .search-result-snippet {
+            color: #4b5563;
+            font-size: 0.8rem;
+        }
+
+        .dark .search-result-snippet {
+            color: #9ca3af;
+        }
+
+        .search-result-url {
+            color: #10b981;
+            font-size: 0.75rem;
+            word-break: break-all;
+        }
+
+        .dark .search-result-url {
+            color: #34d399;
+        }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="app" class="flex flex-col min-h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed top-0 left-0 h-full bg-white dark:bg-dark-700 w-64 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-40 flex flex-col">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-primary-600 dark:text-primary-400 text-xl font-bold">Jork</span>
+                    <span class="bg-green-500 h-2 w-2 rounded-full"></span>
+                </div>
+                <button id="closeSidebar" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Model Selection</h2>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="radio" id="model-claude-3-opus" name="model-selection" value="Claude-3-Opus" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
+                        <label for="model-claude-3-opus" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-3.9-Epic</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="model-claude-3-sonnet" name="model-selection" value="Claude-3.7-Sonnet" class="h-4 w-4 text-primary-600 focus:ring-primary-500" checked>
+                        <label for="model-claude-3-sonnet" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-3.7-Epic</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="model-claude-3-haiku" name="model-selection" value="jork-3.7-Epic-Reasoning" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
+                        <label for="model-claude-3-haiku" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-3.5-Epic</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="model-claude-2" name="model-selection" value="jork-3.5-Epic" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
+                        <label for="model-claude-2" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-k1</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">特点</h2>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="feature-web-search" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
+                        <label for="feature-web-search" class="ml-2 text-sm text-gray-700 dark:text-gray-300">联网搜索</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="feature-deep-thinking" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
+                        <label for="feature-deep-thinking" class="ml-2 text-sm text-gray-700 dark:text-gray-300">深度思考</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="feature-streaming" class="h-4 w-4 text-primary-600 focus:ring-primary-500" checked>
+                        <label for="feature-streaming" class="ml-2 text-sm text-gray-700 dark:text-gray-300">流式输出</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Display</h2>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label for="toggle-dark-mode" class="text-sm text-gray-700 dark:text-gray-300">深色模式</label>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                            <input type="checkbox" id="toggle-dark-mode" class="sr-only">
+                            <div class="toggle-bg bg-gray-200 border-2 border-gray-200 h-6 w-11 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-auto p-4 border-t border-gray-200 dark:border-gray-700">
+                <button id="clear-history" class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-100 dark:hover:bg-red-800">
+                    <i class="fas fa-trash-alt mr-2"></i> 删除历史对话
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main content area -->
+        <div id="main-content" class="flex-1 transition-all duration-300 ease-in-out">
+            <!-- Header -->
+            <header class="bg-white dark:bg-dark-700 shadow-sm sticky top-0 z-10">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <button id="toggleSidebar" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-primary-600 dark:text-primary-400 text-xl font-bold">Jork-3</span>
+                            <span class="bg-green-500 h-2 w-2 rounded-full"></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="toggle-dark-mode-header" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                            <i id="dark-mode-icon" class="fas fa-moon text-xl"></i>
+                        </button>
+                        <button id="btn-new-chat" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm">
+                            <i class="fas fa-plus mr-2"></i> 新的聊天
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Welcome screen -->
+            <div id="welcome-screen" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">欢迎来到JorkAI</h1>
+                    <p id="greeting" class="text-xl text-gray-600 dark:text-gray-300 mb-8">...</p>
+                </div>
+                
+                <div class="mb-12">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">新闻</h2>
+                    <div id="trending-news" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- News cards will be inserted here -->
+                        <div class="news-card">
+                            <div class="p-4">
+                                <div class="animate-pulse">
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-card">
+                            <div class="p-4">
+                                <div class="animate-pulse">
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-card">
+                            <div class="p-4">
+                                <div class="animate-pulse">
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-12">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">特点</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-dark-700 rounded-lg shadow-md p-6">
+                            <div class="text-primary-600 dark:text-primary-400 text-3xl mb-4">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">联网搜索</h3>
+                            <p class="text-gray-600 dark:text-gray-400">从网络访问实时信息以获取最新的答案。</p>
+                        </div>
+                        <div class="bg-white dark:bg-dark-700 rounded-lg shadow-md p-6">
+                            <div class="text-primary-600 dark:text-primary-400 text-3xl mb-4">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">深度思考</h3>
+                            <p class="text-gray-600 dark:text-gray-400">将人工智能的思维过程可视化，以进行复杂的推理和解决问题。</p>
+                        </div>
+                        <div class="bg-white dark:bg-dark-700 rounded-lg shadow-md p-6">
+                            <div class="text-primary-600 dark:text-primary-400 text-3xl mb-4">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">附件支持</h3>
+                            <p class="text-gray-600 dark:text-gray-400">通过丰富的输出功能生成代码、表格、格式化文本等。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button id="start-conversation" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-md text-lg">
+                        开始对话
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Chat UI -->
+            <div id="chat-ui" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 hidden">
+                <div id="conversation-container" class="mb-4">
+                    <!-- Messages will be inserted here -->
+                </div>
+                
+                <!-- Attachment preview area -->
+                <div id="attachment-preview" class="mb-4 hidden">
+                    <div class="bg-gray-100 dark:bg-dark-600 rounded-lg p-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium text-gray-700 dark:text-gray-300">附件</span>
+                            <button id="clear-attachments" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div id="attachment-list" class="flex flex-wrap gap-2">
+                            <!-- Attachment previews will go here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Input area -->
+                <div class="bg-white dark:bg-dark-700 rounded-lg shadow-md p-4">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-1">
+                            <textarea id="message-input" rows="3" class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 resize-none" placeholder="Type your message here..."></textarea>
+                            
+                            <!-- Input actions -->
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="flex space-x-2">
+                                    <label for="file-upload" class="flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 cursor-pointer">
+                                        <i class="fas fa-paperclip text-lg"></i>
+                                        <span class="ml-1 text-sm">附件</span>
+                                        <input id="file-upload" type="file" class="hidden" multiple>
+                                    </label>
+                                    <button id="toggle-web-search" class="flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                        <i class="fas fa-globe text-lg"></i>
+                                        <span class="ml-1 text-sm">联网搜索</span>
+                                    </button>
+                                    <button id="toggle-deep-thinking" class="flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                        <i class="fas fa-brain text-lg"></i>
+                                        <span class="ml-1 text-sm">深度思考</span>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button id="send-message" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fas fa-paper-plane mr-2"></i> 发送
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast notification -->
+    <div id="toast" class="toast">
+        这是一条通知
+    </div>
+    
+    <script>
+        // App state
+        const appState = {
+            darkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
+            sidebarVisible: false,
+            attachments: [],
+            webSearchEnabled: false,
+            deepThinkingEnabled: false,
+            streamingEnabled: true,
+            conversations: [],
+            currentConversationId: null,
+            isWelcomeScreen: true,
+            isProcessing: false,
+            lastMessageId: 0,
+            selectedModel: 'Claude-3-Sonnet',
+            apiKey: 'sk-e1ed90c2effc4415beeee85845f66d05', //这是一条公益API This is an FREE API 
+            serpApiKey: '0c3675871b3a2bf101db16b304252d29e81ffa530e4059de98ac8f4ecf49a64b',
+            mockNewsData: [
+                {
+                    title: "量子计算取得突破",
+                    summary: "科学家展示了一种新的量子计算技术，可以显著加速该领域的进步。",
+                    source: "Tech Innovations"
+                },
+                {
+                    title: "Global Climate Summit Results in New Agreements",
+                    summary: "World leaders have committed to more ambitious climate goals following intensive negotiations.",
+                    source: "Global News"
+                },
+                {
+                    title: "Claude3.7-Sonnet发布",
+                    summary: "Claude-3.7-Sonnet在哪些方面强势？",
+                    source: "AI Research Today"
+                },
+                {
+                    title: "Major Breakthrough in Renewable Energy Storage",
+                    summary: "Engineers announce new battery technology that could solve intermittency issues in renewable energy.",
+                    source: "Energy Weekly"
+                },
+                {
+                    title: "International Space Mission Discovers Evidence of Water on Distant Planet",
+                    summary: "Astronomical observations reveal strong indicators of water presence on an exoplanet 40 light years away.",
+                    source: "Space Exploration"
+                },
+                {
+                    title: "Global Economic Forum Predicts Growth Despite Challenges",
+                    summary: "Economic experts forecast moderate growth for the coming year despite ongoing supply chain issues.",
+                    source: "Financial Times"
+                }
+            ],
+            thinkingSteps: [
+                "分析查询的关键组成部分",
+                "检索相关背景信息",
+                "考虑问题的多个方面",
+                "评估不同论点的有效性",
+                "检查推理过程的逻辑一致性",
+                "识别知识或理解中的潜在差距",
+                "综合信息形成全面的回应",
+                "检查回应的准确性、完整性和清晰度"
+            ],
+            // DeepSeek API configuration
+            deepseekEndpoint: "https://api.deepseek.com/v1/chat/completions",
+            deepseekModels: {
+                "Claude-3-Opus": "deepseek-chat",
+                "Claude-3.7-Sonnet": "deepseek-chat",
+                "jork-3.7-Epic-Reasoning": "deepseek-chat",
+                "jork-3.5-Epic": "deepseek-chat"
+            },
+            // SerpAPI configuration
+            serpApiEndpoint: "https://serpapi.com/search.json"
+        };
+        
+        // Utility functions
+        const utils = {
+            generateId: () => Math.random().toString(36).substring(2, 11),
+            
+            formatDate: (date) => {
+                return new Intl.DateTimeFormat('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }).format(date);
+            },
+            
+            formatTime: (date) => {
+                return new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                }).format(date);
+            },
+            
+            getBeijingTime: () => {
+                const options = {
+                    timeZone: 'Asia/Shanghai',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                };
+                return new Intl.DateTimeFormat('en-US', options).format(new Date());
+            },
+            
+            getBeijingDate: () => {
+                const options = {
+                    timeZone: 'Asia/Shanghai',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                };
+                return new Intl.DateTimeFormat('en-US', options).format(new Date());
+            },
+            
+            getGreeting: () => {
+                const beijingHour = new Date().toLocaleString('en-US', {
+                    timeZone: 'Asia/Shanghai',
+                    hour: 'numeric',
+                    hour12: false
+                });
+                
+                const hour = parseInt(beijingHour);
+                
+                if (hour >= 5 && hour < 12) {
+                    return "Good morning!";
+                } else if (hour >= 12 && hour < 18) {
+                    return "Good afternoon!";
+                } else {
+                    return "Good evening!";
+                }
+            },
+            
+            showToast: (message, duration = 3000) => {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, duration);
+            },
+            
+            toggleDarkMode: () => {
+                appState.darkMode = !appState.darkMode;
+                document.documentElement.classList.toggle('dark', appState.darkMode);
+                
+                // Update toggle button
+                const toggleDarkMode = document.getElementById('toggle-dark-mode');
+                if (toggleDarkMode) {
+                    toggleDarkMode.checked = appState.darkMode;
+                }
+                
+                // Update icon
+                const darkModeIcon = document.getElementById('dark-mode-icon');
+                if (darkModeIcon) {
+                    darkModeIcon.className = appState.darkMode ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+                }
+                
+                // Save preference
+                localStorage.setItem('jork3_dark_mode', appState.darkMode);
+            },
+            
+            toggleSidebar: () => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                
+                if (appState.sidebarVisible) {
+                    sidebar.classList.remove('translate-x-0');
+                    sidebar.classList.add('-translate-x-full');
+                    mainContent.classList.remove('md:ml-64');
+                } else {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+                    mainContent.classList.add('md:ml-64');
+                }
+                
+                appState.sidebarVisible = !appState.sidebarVisible;
+            },
+            
+            generateMessageId: () => {
+                appState.lastMessageId++;
+                return `msg-${appState.lastMessageId}`;
+            },
+            
+            createConversation: () => {
+                const id = utils.generateId();
+                const newConversation = {
+                    id: id,
+                    title: 'New Conversation',
+                    messages: [],
+                    createdAt: new Date().toISOString()
+                };
+                
+                appState.conversations.push(newConversation);
+                appState.currentConversationId = id;
+                
+                // Save to localStorage
+                localStorage.setItem('jork3_conversations', JSON.stringify(appState.conversations));
+                
+                return newConversation;
+            },
+            
+            getCurrentConversation: () => {
+                return appState.conversations.find(conv => conv.id === appState.currentConversationId) || null;
+            },
+            
+            addMessageToConversation: (message) => {
+                const conversation = utils.getCurrentConversation();
+                if (conversation) {
+                    conversation.messages.push(message);
+                    
+                    // Update conversation title if this is the first user message
+                    if (conversation.messages.filter(msg => msg.role === 'user').length === 1 && message.role === 'user') {
+                        // Use the first ~25 chars of the message as the title
+                        conversation.title = message.content.substring(0, 25) + (message.content.length > 25 ? '...' : '');
+                    }
+                    
+                    // Save to localStorage
+                    localStorage.setItem('jork3_conversations', JSON.stringify(appState.conversations));
+                }
+            },
+            
+            clearConversations: () => {
+                appState.conversations = [];
+                appState.currentConversationId = null;
+                localStorage.removeItem('jork3_conversations');
+            },
+            
+            sanitizeHTML: (html) => {
+                return DOMPurify.sanitize(html);
+            },
+            
+            renderMarkdown: (text) => {
+                return marked.parse(text);
+            },
+            
+            // Web search function using SerpAPI
+            performWebSearch: async (query, numResults = 5) => {
+                try {
+                    // Encode the query for URL
+                    const encodedQuery = encodeURIComponent(query);
+                    
+                    const url = `${appState.serpApiEndpoint}?q=${encodedQuery}&api_key=${appState.serpApiKey}&num=${numResults}`;
+                    
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`SerpAPI error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Extract organic results
+                    const searchResults = [];
+                    
+                    if (data.organic_results && data.organic_results.length > 0) {
+                        data.organic_results.slice(0, numResults).forEach(result => {
+                            searchResults.push({
+                                title: result.title,
+                                snippet: result.snippet,
+                                link: result.link,
+                                position: result.position
+                            });
+                        });
+                    }
+                    
+                    return searchResults;
+                } catch (error) {
+                    console.error("Web search error:", error);
+                    throw error;
+                }
+            },
+            
+            // Format search results into markdown
+            formatSearchResults: (results) => {
+                if (!results || results.length === 0) {
+                    return "No search results found.";
+                }
+                
+                let markdown = "### Search Results\n\n";
+                
+                results.forEach((result, index) => {
+                    markdown += `**${index + 1}. ${result.title}**\n`;
+                    markdown += `${result.snippet}\n`;
+                    markdown += `[${result.link}](${result.link})\n\n`;
+                });
+                
+                return markdown;
+            },
+            
+            // Generate structured thinking process in article format
+            generateThinkingProcess: (query) => {
+                // Create a more comprehensive thinking process based on the query
+                const thinking = {
+                    title: "思考分析过程",
+                    introduction: `针对用户提出的问题："${query}"，我将通过以下思考过程进行分析和回答：`,
+                    steps: []
+                };
+                
+                // Add base thinking steps
+                appState.thinkingSteps.forEach(stepTitle => {
+                    thinking.steps.push({
+                        title: stepTitle,
+                        content: utils.generateThinkingContentForStep(stepTitle, query)
+                    });
+                });
+                
+                return thinking;
+            },
+            
+            // Generate content for each thinking step
+            generateThinkingContentForStep: (stepTitle, query) => {
+                // Generate thoughtful content for each step based on the query and step title
+                switch (stepTitle) {
+                    case "分析查询的关键组成部分":
+                        return `这个问题主要关注"${query.split(' ').slice(0, 3).join(' ')}..."。需要理解用户的具体需求，确定信息的核心要点，并分析问题的复杂性和范围。`;
+                    
+                    case "检索相关背景信息":
+                        return `为了全面回答这个问题，我需要提取与"${query.split(' ').slice(0, 2).join(' ')}"相关的基本知识、历史背景、最新发展和相关概念等信息。`;
+                    
+                    case "考虑问题的多个方面":
+                        return `这个问题可能涉及多个角度，包括技术方面、社会影响、经济考量、伦理问题等。我会从多个维度进行考虑，确保回答全面且平衡。`;
+                    
+                    case "评估不同论点的有效性":
+                        return `对于"${query.split(' ').slice(0, 2).join(' ')}"存在不同观点和论述。我会分析各种论点的依据、逻辑性和证据支持，评估它们的有效性和适用条件。`;
+                    
+                    case "检查推理过程的逻辑一致性":
+                        return `在构建回答时，我会确保推理过程的逻辑连贯性，避免循环论证、逻辑跳跃或不一致的结论。我会关注因果关系的合理性和推理链的完整性。`;
+                    
+                    case "识别知识或理解中的潜在差距":
+                        return `在回答过程中，我会注意到可能存在的知识局限、数据不足或理解障碍，并明确指出这些不确定性，避免过度自信的结论。`;
+                    
+                    case "综合信息形成全面的回应":
+                        return `基于前面的分析步骤，我将整合所有相关信息，构建一个结构清晰、内容丰富且针对性强的回答，确保直接回应用户的核心问题。`;
+                    
+                    case "检查回应的准确性、完整性和清晰度":
+                        return `最后，我会审查整个回答，确保信息准确无误，覆盖了问题的各个方面，并以清晰、容易理解的方式呈现，使用适当的术语和解释，便于用户理解。`;
+                    
+                    default:
+                        return `针对"${query}"的问题，这一步骤涉及深入思考和分析相关因素，确保回答的质量和价值。`;
+                }
+            },
+            
+            // Format thinking process into markdown
+            formatThinkingProcess: (thinking) => {
+                let markdown = `## ${thinking.title}\n\n`;
+                markdown += `${thinking.introduction}\n\n`;
+                
+                thinking.steps.forEach((step, index) => {
+                    markdown += `### ${index + 1}. ${step.title}\n`;
+                    markdown += `${step.content}\n\n`;
+                });
+                
+                return markdown;
+            },
+            
+            // DeepSeek API functions
+            callDeepSeekAPI: async (messages, options = {}) => {
+                try {
+                    const model = appState.deepseekModels[appState.selectedModel] || "deepseek-llm";
+                    
+                    const requestBody = {
+                        model: model,
+                        messages: messages,
+                        temperature: options.temperature || 0.7,
+                        max_tokens: options.max_tokens || 4000,
+                        stream: options.stream || false
+                    };
+                    
+                    // For streaming responses
+                    if (options.stream && options.onUpdate) {
+                        return await utils.streamDeepSeekResponse(requestBody, options.onUpdate, options.onComplete);
+                    }
+                    
+                    // For non-streaming responses
+                    const response = await fetch(appState.deepseekEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${appState.apiKey}`
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    return data.choices[0].message.content;
+                } catch (error) {
+                    console.error("DeepSeek API Error:", error);
+                    throw error;
+                }
+            },
+            
+            streamDeepSeekResponse: async (requestBody, onUpdate, onComplete) => {
+                try {
+                    const response = await fetch(appState.deepseekEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${appState.apiKey}`
+                        },
+                        body: JSON.stringify({ ...requestBody, stream: true })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                    }
+                    
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullContent = '';
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value, { stream: true });
+                        const lines = chunk.split('\n').filter(line => line.trim() !== '');
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const data = line.slice(6);
+                                if (data === '[DONE]') {
+                                    if (onComplete) onComplete(fullContent);
+                                    return fullContent;
+                                }
+                                
+                                try {
+                                    const parsed = JSON.parse(data);
+                                    if (parsed.choices && parsed.choices[0].delta.content) {
+                                        const content = parsed.choices[0].delta.content;
+                                        fullContent += content;
+                                        if (onUpdate) onUpdate(fullContent);
+                                    }
+                                } catch (e) {
+                                    console.error("Error parsing stream data:", e);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (onComplete) onComplete(fullContent);
+                    return fullContent;
+                } catch (error) {
+                    console.error("DeepSeek API Stream Error:", error);
+                    throw error;
+                }
+            },
+            
+            // Prepare messages for DeepSeek API call
+            prepareMessagesForAPI: (includeContext = true) => {
+                const conversation = utils.getCurrentConversation();
+                if (!conversation) return [];
+                
+                // Start with a system message
+                const messages = [{
+                    role: 'system',
+                    content: "你是Jork-3.9-Epic，由JorkAI团队（https://www.jorkai.cn）研发。你是一个乐于助人、富有创造力、知识渊博的人工智能助手。你擅长理解复杂的问题，并提供深刻而准确的回答。你的能力已经超越DeepSeek-v3。你的知识截止日期是2024年10月。"
+                }];
+                
+                // Add conversation history
+                if (includeContext) {
+                    conversation.messages.forEach(msg => {
+                        messages.push({
+                            role: msg.role,
+                            content: msg.content
+                        });
+                    });
+                } else {
+                    // Just add the last user message
+                    const lastUserMessage = conversation.messages.filter(msg => msg.role === 'user').pop();
+                    if (lastUserMessage) {
+                        messages.push({
+                            role: 'user',
+                            content: lastUserMessage.content
+                        });
+                    }
+                }
+                
+                return messages;
+            }
+        };
+        
+        // UI Manager
+        const uiManager = {
+            init: () => {
+                // Initialize UI state
+                uiManager.loadSavedState();
+                uiManager.setupEventListeners();
+                uiManager.updateDarkModeUI();
+                uiManager.setupWelcomeScreen();
+                
+                // Render initial screen
+                if (appState.conversations.length > 0 && appState.currentConversationId) {
+                    uiManager.showChatUI();
+                    uiManager.renderCurrentConversation();
+                } else {
+                    uiManager.showWelcomeScreen();
+                }
+            },
+            
+            loadSavedState: () => {
+                // Load dark mode preference
+                const savedDarkMode = localStorage.getItem('jork3_dark_mode');
+                if (savedDarkMode !== null) {
+                    appState.darkMode = savedDarkMode === 'true';
+                    document.documentElement.classList.toggle('dark', appState.darkMode);
+                } else {
+                    // If no saved preference, use system preference
+                    appState.darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    document.documentElement.classList.toggle('dark', appState.darkMode);
+                }
+                
+                // Load saved conversations
+                const savedConversations = localStorage.getItem('jork3_conversations');
+                if (savedConversations) {
+                    appState.conversations = JSON.parse(savedConversations);
+                    
+                    // Set current conversation to the most recent one
+                    if (appState.conversations.length > 0) {
+                        appState.conversations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        appState.currentConversationId = appState.conversations[0].id;
+                    }
+                }
+                
+                // Load API key if saved
+                const savedAPIKey = localStorage.getItem('jork3_api_key');
+                if (savedAPIKey) {
+                    appState.apiKey = savedAPIKey;
+                }
+                
+                // Load SerpAPI key if saved
+                const savedSerpApiKey = localStorage.getItem('jork3_serp_api_key');
+                if (savedSerpApiKey) {
+                    appState.serpApiKey = savedSerpApiKey;
+                }
+                
+                // Load feature preferences
+                const webSearchEnabled = localStorage.getItem('jork3_web_search');
+                if (webSearchEnabled !== null) {
+                    appState.webSearchEnabled = webSearchEnabled === 'true';
+                }
+                
+                const deepThinkingEnabled = localStorage.getItem('jork3_deep_thinking');
+                if (deepThinkingEnabled !== null) {
+                    appState.deepThinkingEnabled = deepThinkingEnabled === 'true';
+                }
+                
+                const streamingEnabled = localStorage.getItem('jork3_streaming');
+                if (streamingEnabled !== null) {
+                    appState.streamingEnabled = streamingEnabled === 'true';
+                }
+                
+                const selectedModel = localStorage.getItem('jork3_selected_model');
+                if (selectedModel) {
+                    appState.selectedModel = selectedModel;
+                }
+            },
+            
+            setupEventListeners: () => {
+                // Dark mode toggle
+                const toggleDarkMode = document.getElementById('toggle-dark-mode');
+                if (toggleDarkMode) {
+                    toggleDarkMode.checked = appState.darkMode;
+                    toggleDarkMode.addEventListener('change', utils.toggleDarkMode);
+                }
+                
+                // Header dark mode toggle
+                const toggleDarkModeHeader = document.getElementById('toggle-dark-mode-header');
+                if (toggleDarkModeHeader) {
+                    toggleDarkModeHeader.addEventListener('click', utils.toggleDarkMode);
+                }
+                
+                // Sidebar toggle
+                const toggleSidebar = document.getElementById('toggleSidebar');
+                if (toggleSidebar) {
+                    toggleSidebar.addEventListener('click', utils.toggleSidebar);
+                }
+                
+                // Close sidebar
+                const closeSidebar = document.getElementById('closeSidebar');
+                if (closeSidebar) {
+                    closeSidebar.addEventListener('click', utils.toggleSidebar);
+                }
+                
+                // Send message button
+                const sendMessageBtn = document.getElementById('send-message');
+                if (sendMessageBtn) {
+                    sendMessageBtn.addEventListener('click', uiManager.handleSendMessage);
+                }
+                
+                // Message input
+                const messageInput = document.getElementById('message-input');
+                if (messageInput) {
+                    messageInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            uiManager.handleSendMessage();
+                        }
+                    });
+                }
+                
+                // New chat button
+                const newChatBtn = document.getElementById('btn-new-chat');
+                if (newChatBtn) {
+                    newChatBtn.addEventListener('click', () => {
+                        utils.createConversation();
+                        uiManager.showChatUI();
+                        uiManager.renderCurrentConversation();
+                        document.getElementById('message-input').focus();
+                    });
+                }
+                
+                // Start conversation button on welcome screen
+                const startConversationBtn = document.getElementById('start-conversation');
+                if (startConversationBtn) {
+                    startConversationBtn.addEventListener('click', () => {
+                        utils.createConversation();
+                        uiManager.showChatUI();
+                        uiManager.renderCurrentConversation();
+                        document.getElementById('message-input').focus();
+                    });
+                }
+                
+                // Clear history button
+                const clearHistoryBtn = document.getElementById('clear-history');
+                if (clearHistoryBtn) {
+                    clearHistoryBtn.addEventListener('click', () => {
+                        if (confirm('Are you sure you want to clear all chat history? This cannot be undone.')) {
+                            utils.clearConversations();
+                            uiManager.showWelcomeScreen();
+                            utils.showToast('Chat history cleared');
+                        }
+                    });
+                }
+                
+                // File upload
+                const fileUpload = document.getElementById('file-upload');
+                if (fileUpload) {
+                    fileUpload.addEventListener('change', (e) => {
+                        if (e.target.files.length > 0) {
+                            for (let i = 0; i < e.target.files.length; i++) {
+                                const file = e.target.files[i];
+                                appState.attachments.push(file);
+                            }
+                            uiManager.updateAttachmentPreview();
+                        }
+                    });
+                }
+                
+                // Clear attachments
+                const clearAttachmentsBtn = document.getElementById('clear-attachments');
+                if (clearAttachmentsBtn) {
+                    clearAttachmentsBtn.addEventListener('click', () => {
+                        appState.attachments = [];
+                        uiManager.updateAttachmentPreview();
+                    });
+                }
+                
+                // Web search toggle
+                const toggleWebSearch = document.getElementById('toggle-web-search');
+                if (toggleWebSearch) {
+                    toggleWebSearch.addEventListener('click', () => {
+                        appState.webSearchEnabled = !appState.webSearchEnabled;
+                        toggleWebSearch.classList.toggle('text-primary-600', appState.webSearchEnabled);
+                        localStorage.setItem('jork3_web_search', appState.webSearchEnabled);
+                        
+                        // Update checkbox in sidebar
+                        const webSearchCheckbox = document.getElementById('feature-web-search');
+                        if (webSearchCheckbox) {
+                            webSearchCheckbox.checked = appState.webSearchEnabled;
+                        }
+                        
+                        utils.showToast(`Web search ${appState.webSearchEnabled ? 'enabled' : 'disabled'}`);
+                    });
+                }
+                
+                // Deep thinking toggle
+                const toggleDeepThinking = document.getElementById('toggle-deep-thinking');
+                if (toggleDeepThinking) {
+                    toggleDeepThinking.addEventListener('click', () => {
+                        appState.deepThinkingEnabled = !appState.deepThinkingEnabled;
+                        toggleDeepThinking.classList.toggle('text-primary-600', appState.deepThinkingEnabled);
+                        localStorage.setItem('jork3_deep_thinking', appState.deepThinkingEnabled);
+                        
+                        // Update checkbox in sidebar
+                        const deepThinkingCheckbox = document.getElementById('feature-deep-thinking');
+                        if (deepThinkingCheckbox) {
+                            deepThinkingCheckbox.checked = appState.deepThinkingEnabled;
+                        }
+                        
+                        utils.showToast(`Deep thinking ${appState.deepThinkingEnabled ? 'enabled' : 'disabled'}`);
+                    });
+                }
+                
+                // Model selection radios
+                const modelRadios = document.querySelectorAll('input[name="model-selection"]');
+                modelRadios.forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            appState.selectedModel = e.target.value;
+                            localStorage.setItem('jork3_selected_model', appState.selectedModel);
+                            utils.showToast(`Model changed to ${appState.selectedModel}`);
+                        }
+                    });
+                    
+                    // Set initial checked state
+                    if (radio.value === appState.selectedModel) {
+                        radio.checked = true;
+                    }
+                });
+                
+                // Feature checkboxes
+                const webSearchCheckbox = document.getElementById('feature-web-search');
+                if (webSearchCheckbox) {
+                    webSearchCheckbox.checked = appState.webSearchEnabled;
+                    webSearchCheckbox.addEventListener('change', (e) => {
+                        appState.webSearchEnabled = e.target.checked;
+                        localStorage.setItem('jork3_web_search', appState.webSearchEnabled);
+                        
+                        // Update button style
+                        const toggleWebSearch = document.getElementById('toggle-web-search');
+                        if (toggleWebSearch) {
+                            toggleWebSearch.classList.toggle('text-primary-600', appState.webSearchEnabled);
+                        }
+                    });
+                }
+                
+                const deepThinkingCheckbox = document.getElementById('feature-deep-thinking');
+                if (deepThinkingCheckbox) {
+                    deepThinkingCheckbox.checked = appState.deepThinkingEnabled;
+                    deepThinkingCheckbox.addEventListener('change', (e) => {
+                        appState.deepThinkingEnabled = e.target.checked;
+                        localStorage.setItem('jork3_deep_thinking', appState.deepThinkingEnabled);
+                        
+                        // Update button style
+                        const toggleDeepThinking = document.getElementById('toggle-deep-thinking');
+                        if (toggleDeepThinking) {
+                            toggleDeepThinking.classList.toggle('text-primary-600', appState.deepThinkingEnabled);
+                        }
+                    });
+                }
+                
+                const streamingCheckbox = document.getElementById('feature-streaming');
+                if (streamingCheckbox) {
+                    streamingCheckbox.checked = appState.streamingEnabled;
+                    streamingCheckbox.addEventListener('change', (e) => {
+                        appState.streamingEnabled = e.target.checked;
+                        localStorage.setItem('jork3_streaming', appState.streamingEnabled);
+                    });
+                }
+                
+                // API Key input
+                const apiKeyInput = document.getElementById('deepseek-api-key');
+                if (apiKeyInput) {
+                    apiKeyInput.value = appState.apiKey;
+                    apiKeyInput.addEventListener('change', (e) => {
+                        appState.apiKey = e.target.value;
+                        localStorage.setItem('jork3_api_key', appState.apiKey);
+                    });
+                }
+                
+                // Listen for dark mode changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                    if (localStorage.getItem('jork3_dark_mode') === null) {
+                        // Only update if user hasn't explicitly set a preference
+                        appState.darkMode = event.matches;
+                        document.documentElement.classList.toggle('dark', appState.darkMode);
+                        uiManager.updateDarkModeUI();
+                    }
+                });
+                
+                // News cards click event
+                document.querySelectorAll('.news-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const titleElement = card.querySelector('.news-title');
+                        if (titleElement) {
+                            const title = titleElement.textContent;
+                            uiManager.handleNewsSelection(title);
+                        }
+                    });
+                });
+            },
+            
+            updateDarkModeUI: () => {
+                // Update toggle button
+                const toggleDarkMode = document.getElementById('toggle-dark-mode');
+                if (toggleDarkMode) {
+                    toggleDarkMode.checked = appState.darkMode;
+                }
+                
+                // Update icon
+                const darkModeIcon = document.getElementById('dark-mode-icon');
+                if (darkModeIcon) {
+                    darkModeIcon.className = appState.darkMode ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+                }
+            },
+            
+            setupWelcomeScreen: () => {
+                // Set greeting based on Beijing time
+                const greetingElement = document.getElementById('greeting');
+                if (greetingElement) {
+                    const greeting = utils.getGreeting();
+                    const beijingTime = utils.getBeijingTime();
+                    const beijingDate = utils.getBeijingDate();
+                    greetingElement.textContent = `${greeting} It's ${beijingDate}, ${beijingTime} in Beijing.`;
+                }
+                
+                // Generate news cards
+                const trendingNewsContainer = document.getElementById('trending-news');
+                if (trendingNewsContainer) {
+                    trendingNewsContainer.innerHTML = '';
+                    
+                    // Randomly select 3 news items
+                    const randomNews = [...appState.mockNewsData]
+                        .sort(() => 0.5 - Math.random())
+                        .slice(0, 3);
+                    
+                    randomNews.forEach(news => {
+                        const newsCard = document.createElement('div');
+                        newsCard.className = 'news-card cursor-pointer';
+                        newsCard.innerHTML = `
+                            <div class="p-4">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2 news-title">${news.title}</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">${news.summary}</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500 dark:text-gray-500">${news.source}</span>
+                                    <button class="text-primary-600 dark:text-primary-400 text-xs">Read more →</button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add click event
+                        newsCard.addEventListener('click', () => {
+                            uiManager.handleNewsSelection(news.title);
+                        });
+                        
+                        trendingNewsContainer.appendChild(newsCard);
+                    });
+                }
+            },
+            
+            showWelcomeScreen: () => {
+                const welcomeScreen = document.getElementById('welcome-screen');
+                const chatUI = document.getElementById('chat-ui');
+                
+                if (welcomeScreen && chatUI) {
+                    welcomeScreen.classList.remove('hidden');
+                    chatUI.classList.add('hidden');
+                    appState.isWelcomeScreen = true;
+                }
+                
+                // Update welcome screen data
+                uiManager.setupWelcomeScreen();
+            },
+            
+            showChatUI: () => {
+                const welcomeScreen = document.getElementById('welcome-screen');
+                const chatUI = document.getElementById('chat-ui');
+                
+                if (welcomeScreen && chatUI) {
+                    welcomeScreen.classList.add('hidden');
+                    chatUI.classList.remove('hidden');
+                    appState.isWelcomeScreen = false;
+                }
+            },
+            
+            renderCurrentConversation: () => {
+                const conversation = utils.getCurrentConversation();
+                const container = document.getElementById('conversation-container');
+                
+                if (container && conversation) {
+                    container.innerHTML = '';
+                    
+                    // Render all messages
+                    conversation.messages.forEach(message => {
+                        uiManager.appendMessageToUI(message);
+                    });
+                    
+                    // Scroll to bottom
+                    container.scrollTop = container.scrollHeight;
+                }
+            },
+            
+            updateAttachmentPreview: () => {
+                const attachmentPreview = document.getElementById('attachment-preview');
+                const attachmentList = document.getElementById('attachment-list');
+                
+                if (attachmentPreview && attachmentList) {
+                    if (appState.attachments.length > 0) {
+                        attachmentPreview.classList.remove('hidden');
+                        attachmentList.innerHTML = '';
+                        
+                        appState.attachments.forEach((file, index) => {
+                            const attachmentItem = document.createElement('div');
+                            attachmentItem.className = 'bg-white dark:bg-dark-800 rounded-md shadow-sm p-2 flex items-center';
+                            
+                            // Preview icon or thumbnail
+                            let previewHtml = '';
+                            if (file.type.startsWith('image/')) {
+                                const imgUrl = URL.createObjectURL(file);
+                                previewHtml = `<img src="${imgUrl}" class="h-10 w-10 object-cover rounded mr-2" alt="Preview">`;
+                            } else {
+                                previewHtml = `<i class="fas fa-file text-gray-500 text-xl mr-2"></i>`;
+                            }
+                            
+                            attachmentItem.innerHTML = `
+                                ${previewHtml}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${file.name}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">${(file.size / 1024).toFixed(1)} KB</p>
+                                </div>
+                                <button class="remove-attachment ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" data-index="${index}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                            
+                            attachmentList.appendChild(attachmentItem);
+                        });
+                        
+                        // Add event listeners to remove buttons
+                        document.querySelectorAll('.remove-attachment').forEach(btn => {
+                            btn.addEventListener('click', (e) => {
+                                const index = parseInt(e.currentTarget.getAttribute('data-index'));
+                                appState.attachments.splice(index, 1);
+                                uiManager.updateAttachmentPreview();
+                            });
+                        });
+                    } else {
+                        attachmentPreview.classList.add('hidden');
+                    }
+                }
+            },
+            
+            createMessageElement: (message) => {
+                const messageId = message.id || utils.generateMessageId();
+                const isUser = message.role === 'user';
+                
+                const messageElement = document.createElement('div');
+                messageElement.id = messageId;
+                messageElement.className = `message-container ${isUser ? 'user-message' : 'ai-message'} border-b border-gray-100 dark:border-gray-800`;
+                
+                let avatarHtml = '';
+                
+                if (isUser) {
+                    avatarHtml = `
+                        <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    `;
+                } else {
+                    avatarHtml = `
+                        <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                    `;
+                }
+                
+                // Format the content based on message type
+                let contentHtml = '';
+                
+                if (isUser) {
+                    // User messages are displayed as plain text
+                    contentHtml = `<div class="message-content whitespace-pre-wrap">${message.content}</div>`;
+                } else {
+                    // AI messages are rendered as markdown
+                    contentHtml = `<div class="message-content">${utils.sanitizeHTML(utils.renderMarkdown(message.content))}</div>`;
+                }
+                
+                // Add attachments if any
+                let attachmentsHtml = '';
+                if (message.attachments && message.attachments.length > 0) {
+                    attachmentsHtml = `
+                        <div class="mt-2 space-y-2">
+                            ${message.attachments.map(attachment => {
+                                if (attachment.type.startsWith('image/')) {
+                                    return `<img src="${attachment.url}" class="max-w-full h-auto rounded" alt="Attachment">`;
+                                } else {
+                                    return `
+                                        <div class="flex items-center p-2 bg-gray-100 dark:bg-dark-600 rounded">
+                                            <i class="fas fa-file mr-2 text-gray-600 dark:text-gray-400"></i>
+                                            <span class="text-sm">${attachment.name}</span>
+                                        </div>
+                                    `;
+                                }
+                            }).join('')}
+                        </div>
+                    `;
+                }
+                
+                // Add thinking process if enabled and it's an AI message
+                let thinkingHtml = '';
+                if (!isUser && message.thinking && appState.deepThinkingEnabled) {
+                    thinkingHtml = `
+                        <div class="thinking-container mt-2">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">思考过程</span>
+                                <button class="toggle-thinking text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                            </div>
+                            <div class="thinking-content">
+                                <div class="thinking-article">
+                                    ${utils.sanitizeHTML(utils.renderMarkdown(message.thinking))}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Add search results if available and it's an AI message
+                let searchResultsHtml = '';
+                if (!isUser && message.searchResults) {
+                    searchResultsHtml = `
+                        <div class="search-results mt-2">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">搜索结果</span>
+                                <button class="toggle-search-results text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                            </div>
+                            <div class="search-results-content">
+                                ${message.searchResults.map(result => `
+                                    <div class="search-result-item">
+                                        <div class="search-result-title">${result.title}</div>
+                                        <div class="search-result-snippet">${result.snippet}</div>
+                                        <div class="search-result-url">${result.link}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                messageElement.innerHTML = `
+                    <div class="flex space-x-4">
+                        ${avatarHtml}
+                        <div class="flex-1">
+                            <div class="flex items-center mb-1">
+                                <div class="font-medium text-gray-900 dark:text-white">${isUser ? 'You' : 'Jork-3'}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 ml-2">${message.timestamp || utils.formatTime(new Date())}</div>
+                            </div>
+                            ${contentHtml}
+                            ${attachmentsHtml}
+                            ${searchResultsHtml}
+                            ${thinkingHtml}
+                        </div>
+                    </div>
+                `;
+                
+                // Add event listeners for thinking toggle if present
+                const toggleThinking = messageElement.querySelector('.toggle-thinking');
+                if (toggleThinking) {
+                    toggleThinking.addEventListener('click', () => {
+                        const thinkingContent = messageElement.querySelector('.thinking-content');
+                        const icon = toggleThinking.querySelector('i');
+                        
+                        if (thinkingContent.style.display === 'none') {
+                            thinkingContent.style.display = 'block';
+                            icon.className = 'fas fa-chevron-up';
+                        } else {
+                            thinkingContent.style.display = 'none';
+                            icon.className = 'fas fa-chevron-down';
+                        }
+                    });
+                }
+                
+                // Add event listeners for search results toggle if present
+                const toggleSearchResults = messageElement.querySelector('.toggle-search-results');
+                if (toggleSearchResults) {
+                    toggleSearchResults.addEventListener('click', () => {
+                        const searchResultsContent = messageElement.querySelector('.search-results-content');
+                        const icon = toggleSearchResults.querySelector('i');
+                        
+                        if (searchResultsContent.style.display === 'none') {
+                            searchResultsContent.style.display = 'block';
+                            icon.className = 'fas fa-chevron-up';
+                        } else {
+                            searchResultsContent.style.display = 'none';
+                            icon.className = 'fas fa-chevron-down';
+                        }
+                    });
+                }
+                
+                return messageElement;
+            },
+            
+            appendMessageToUI: (message) => {
+                const container = document.getElementById('conversation-container');
+                if (container) {
+                    const messageElement = uiManager.createMessageElement(message);
+                    container.appendChild(messageElement);
+                    
+                    // Scroll to bottom
+                    container.scrollTop = container.scrollHeight;
+                    
+                    // Highlight code blocks
+                    try {
+                        if (typeof hljs !== 'undefined') {
+                            messageElement.querySelectorAll('pre code').forEach((block) => {
+                                hljs.highlightElement(block);
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Syntax highlighting error:', e);
+                    }
+                }
+            },
+            
+            updateMessageInUI: (messageId, content, isComplete = false) => {
+                const messageElement = document.getElementById(messageId);
+                if (messageElement) {
+                    const contentElement = messageElement.querySelector('.message-content');
+                    if (contentElement) {
+                        // Render markdown and sanitize
+                        contentElement.innerHTML = utils.sanitizeHTML(utils.renderMarkdown(content));
+                        
+                        // Add cursor if still streaming
+                        if (!isComplete && appState.streamingEnabled) {
+                            const cursorElement = document.createElement('span');
+                            cursorElement.className = 'cursor-blink';
+                            contentElement.appendChild(cursorElement);
+                        }
+                        
+                        // Highlight code blocks
+                        try {
+                            if (typeof hljs !== 'undefined') {
+                                messageElement.querySelectorAll('pre code').forEach((block) => {
+                                    hljs.highlightElement(block);
+                                });
+                            }
+                        } catch (e) {
+                            console.error('Syntax highlighting error in updateMessageInUI:', e);
+                        }
+                        
+                        // Scroll to bottom
+                        const container = document.getElementById('conversation-container');
+                        if (container) {
+                            container.scrollTop = container.scrollHeight;
+                        }
+                    }
+                }
+            },
+            
+            createLoadingMessage: () => {
+                const messageId = utils.generateMessageId();
+                const message = {
+                    id: messageId,
+                    role: 'assistant',
+                    content: '<div class="flex items-center"><span class="dot-typing"></span><span class="dot-typing"></span><span class="dot-typing"></span></div>',
+                    timestamp: utils.formatTime(new Date())
+                };
+                
+                // Append to UI but don't add to conversation yet
+                uiManager.appendMessageToUI(message);
+                
+                return messageId;
+            },
+            
+            handleSendMessage: async () => {
+                const messageInput = document.getElementById('message-input');
+                const sendButton = document.getElementById('send-message');
+                
+                if (messageInput && sendButton && !appState.isProcessing) {
+                    const messageText = messageInput.value.trim();
+                    
+                    if (messageText === '' && appState.attachments.length === 0) {
+                        return;
+                    }
+                    
+                    // Disable input and button while processing
+                    appState.isProcessing = true;
+                    messageInput.disabled = true;
+                    sendButton.disabled = true;
+                    
+                    // Create user message
+                    const userMessage = {
+                        role: 'user',
+                        content: messageText,
+                        timestamp: utils.formatTime(new Date())
+                    };
+                    
+                    // Add attachments if any
+                    if (appState.attachments.length > 0) {
+                        userMessage.attachments = appState.attachments.map(file => {
+                            return {
+                                name: file.name,
+                                type: file.type,
+                                url: URL.createObjectURL(file)
+                            };
+                        });
+                    }
+                    
+                    // Add to conversation and UI
+                    utils.addMessageToConversation(userMessage);
+                    uiManager.appendMessageToUI(userMessage);
+                    
+                    // Clear input and attachments
+                    messageInput.value = '';
+                    appState.attachments = [];
+                    uiManager.updateAttachmentPreview();
+                    
+                    // Create loading message
+                    const loadingMessageId = uiManager.createLoadingMessage();
+                    
+                    try {
+                        // Search web if enabled
+                        let searchResults = [];
+                        if (appState.webSearchEnabled) {
+                            try {
+                                utils.showToast("Searching the web...");
+                                searchResults = await utils.performWebSearch(messageText);
+                            } catch (error) {
+                                console.error("Web search error:", error);
+                                utils.showToast("Web search failed. Continuing without search results.");
+                            }
+                        }
+                        
+                        // Generate thinking process if enabled
+                        let thinkingProcess = null;
+                        if (appState.deepThinkingEnabled) {
+                            thinkingProcess = utils.formatThinkingProcess(utils.generateThinkingProcess(messageText));
+                        }
+                        
+                        // Prepare messages for API call
+                        let promptPrefix = '';
+                        
+                        // Add web search results if available
+                        if (searchResults.length > 0) {
+                            promptPrefix += "Here are some search results that might be helpful:\n\n";
+                            
+                            searchResults.forEach((result, index) => {
+                                promptPrefix += `[${index + 1}] ${result.title}\n`;
+                                promptPrefix += `${result.snippet}\n`;
+                                promptPrefix += `URL: ${result.link}\n\n`;
+                            });
+                            
+                            promptPrefix += "Please use these search results to provide an up-to-date response to the query. ";
+                        }
+                        
+                        // Add deep thinking instruction if enabled
+                        if (appState.deepThinkingEnabled) {
+                            promptPrefix += "Please think step by step and provide a thorough, well-reasoned response. ";
+                        }
+                        
+                        // Create modified user message with prefix
+                        const messages = utils.prepareMessagesForAPI();
+
+                        
+
+                        if (appState.webSearchEnabled) {
+    const searchResults = await utils.performWebSearch(userMessage.content);
+    const formattedSearch = utils.formatSearchResults(searchResults);
+
+    // 把搜索结果插入到 messages 中，作为 AI 的上下文
+    messages.push({
+        role: 'system',
+        content: `以下是从网络搜索到的相关信息，可用于辅助回答用户问题：\n\n${formattedSearch}`
+    });
+
+    // 暂存到 message 对象里，用于 UI 展示
+    aiMessage.searchResults = searchResults;
+}
+
+
+                        
+                        // Find the last user message and prepend instructions
+                        if (messages.length > 1 && messages[messages.length - 1].role === 'user') {
+                            messages[messages.length - 1].content = promptPrefix + messages[messages.length - 1].content;
+                        }
+                        
+                        // Process attachments if any
+                        if (userMessage.attachments && userMessage.attachments.length > 0) {
+                            // Add attachment information to the last user message
+                            const lastUserMessageIndex = messages.findIndex(m => m.role === 'user');
+                            if (lastUserMessageIndex !== -1) {
+                                const attachmentDescriptions = userMessage.attachments.map(att => 
+                                    `[Attachment: ${att.name}, Type: ${att.type}]`
+                                ).join('\n');
+                                
+                                messages[lastUserMessageIndex].content += '\n\n' + attachmentDescriptions;
+                            }
+                        }
+                        
+                        // Call the DeepSeek API
+                        if (appState.streamingEnabled) {
+                            await utils.callDeepSeekAPI(messages, {
+                                stream: true,
+                                onUpdate: (content) => {
+                                    uiManager.updateMessageInUI(loadingMessageId, content);
+                                },
+                                onComplete: (content) => {
+                                    uiManager.updateMessageInUI(loadingMessageId, content, true);
+                                    
+                                    // Add to conversation
+                                    const aiMessage = {
+                                        role: 'assistant',
+                                        content: content,
+                                        timestamp: utils.formatTime(new Date())
+                                    };
+                                    
+                                    // Add thinking steps if deep thinking was enabled
+                                    if (thinkingProcess) {
+                                        aiMessage.thinking = thinkingProcess;
+                                    }
+                                    
+                                    // Add search results if web search was enabled
+                                    if (searchResults.length > 0) {
+                                        aiMessage.searchResults = searchResults;
+                                    }
+                                    
+                                    utils.addMessageToConversation(aiMessage);
+                                    
+                                    // Replace the loading message with the complete message
+                                    const container = document.getElementById('conversation-container');
+                                    if (container) {
+                                        const loadingElement = document.getElementById(loadingMessageId);
+                                        if (loadingElement) {
+                                            const completeElement = uiManager.createMessageElement(aiMessage);
+                                            container.replaceChild(completeElement, loadingElement);
+                                            
+                                            // Highlight code blocks in the new element
+                                            try {
+                                                if (typeof hljs !== 'undefined') {
+                                                    completeElement.querySelectorAll('pre code').forEach((block) => {
+                                                        hljs.highlightElement(block);
+                                                    });
+                                                }
+                                            } catch (e) {
+                                                console.error('Syntax highlighting error:', e);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        } else {
+                            // Non-streaming API call
+                            const response = await utils.callDeepSeekAPI(messages, {
+                                temperature: 0.7,
+                                max_tokens: 4000
+                            });
+                            
+                            // Update the UI
+                            uiManager.updateMessageInUI(loadingMessageId, response, true);
+                            
+                            // Add to conversation
+                            const aiMessage = {
+                                role: 'assistant',
+                                content: response,
+                                timestamp: utils.formatTime(new Date())
+                            };
+                            
+                            // Add thinking process if deep thinking was enabled
+                            if (thinkingProcess) {
+                                aiMessage.thinking = thinkingProcess;
+                            }
+                            
+                            // Add search results if web search was enabled
+                            if (searchResults.length > 0) {
+                                aiMessage.searchResults = searchResults;
+                            }
+                            
+                            utils.addMessageToConversation(aiMessage);
+                            
+                            // Replace the loading message with the complete message
+                            const container = document.getElementById('conversation-container');
+                            if (container) {
+                                const loadingElement = document.getElementById(loadingMessageId);
+                                if (loadingElement) {
+                                    const completeElement = uiManager.createMessageElement(aiMessage);
+                                    container.replaceChild(completeElement, loadingElement);
+                                    
+                                    // Highlight code blocks in the new element
+                                    try {
+                                        if (typeof hljs !== 'undefined') {
+                                            completeElement.querySelectorAll('pre code').forEach((block) => {
+                                                hljs.highlightElement(block);
+                                            });
+                                        }
+                                    } catch (e) {
+                                        console.error('Syntax highlighting error:', e);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error sending message:", error);
+                        
+                        // Update the loading message with error
+                        document.getElementById(loadingMessageId).remove();
+                        
+                        const errorMessage = {
+                            role: 'assistant',
+                            content: `Error: ${error.message || 'Failed to connect to DeepSeek API'}`,
+                            timestamp: utils.formatTime(new Date())
+                        };
+                        
+                        utils.addMessageToConversation(errorMessage);
+                        uiManager.appendMessageToUI(errorMessage);
+                        
+                        utils.showToast("Error: Failed to connect to DeepSeek API");
+                    } finally {
+                        // Re-enable input and button
+                        appState.isProcessing = false;
+                        messageInput.disabled = false;
+                        sendButton.disabled = false;
+                        messageInput.focus();
+                    }
+                }
+            },
+            
+            handleNewsSelection: (newsTitle) => {
+                // Create new conversation
+                utils.createConversation();
+                
+                // Show chat UI
+                uiManager.showChatUI();
+                
+                // Set the message input to a query about the news
+                const messageInput = document.getElementById('message-input');
+                if (messageInput) {
+                    messageInput.value = `Tell me more about "${newsTitle}" with the latest information.`;
+                    
+                    // Enable web search for news queries
+                    appState.webSearchEnabled = true;
+                    
+                    // Update UI for web search
+                    const toggleWebSearch = document.getElementById('toggle-web-search');
+                    if (toggleWebSearch) {
+                        toggleWebSearch.classList.add('text-primary-600');
+                    }
+                    
+                    const webSearchCheckbox = document.getElementById('feature-web-search');
+                    if (webSearchCheckbox) {
+                        webSearchCheckbox.checked = true;
+                    }
+                    
+                    // Focus the input
+                    messageInput.focus();
+                }
+            }
+        };
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            uiManager.init();
+        });
+    </script>
+</body>
+</html>
