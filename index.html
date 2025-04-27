@@ -2,11 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, minimal-ui">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="logo.png">
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>jork-3.7-Epic AI Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -271,6 +266,20 @@
             background-color: #1f2937;
         }
 
+        /* Citation styles */
+        .citation {
+            background-color: #f0f9ff;
+            border-left: 3px solid #3b82f6;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .dark .citation {
+            background-color: #172033;
+            border-left-color: #3b82f6;
+        }
+
         /* Syntax highlighting */
         .hljs {
             display: block;
@@ -286,7 +295,7 @@
             padding: 1rem;
             margin-top: 0.5rem;
             margin-bottom: 1rem;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 0.875rem;
             overflow-x: auto;
             position: relative;
@@ -296,26 +305,11 @@
             background-color: #2d2d2d;
         }
 
-        .thinking-article {
+        .thinking-step {
             margin-bottom: 0.75rem;
-            padding: 1rem;
+            padding: 0.5rem;
             border-left: 3px solid #5D5CDE;
             animation: fadeIn 0.5s ease-in;
-            line-height: 1.6;
-        }
-
-        .thinking-article h3 {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #4b5563;
-        }
-
-        .dark .thinking-article h3 {
-            color: #d1d5db;
-        }
-
-        .thinking-article p {
-            margin-bottom: 0.75rem;
         }
 
         @keyframes fadeIn {
@@ -391,6 +385,36 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
+        /* Chat history items */
+        .chat-history-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chat-history-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .dark .chat-history-item {
+            border-color: #374151;
+        }
+
+        .dark .chat-history-item:hover {
+            background-color: #1f2937;
+        }
+
+        .chat-history-item.active {
+            background-color: #e0e7ff;
+            border-left: 3px solid #6663ff;
+        }
+
+        .dark .chat-history-item.active {
+            background-color: #272c36;
+            border-left: 3px solid #6663ff;
+        }
+
         /* Button animations */
         .btn-hover-effect {
             position: relative;
@@ -452,62 +476,6 @@
             opacity: 1;
         }
 
-        /* Search results styling */
-        .search-results {
-            background-color: #f9fafb;
-            border-radius: 0.375rem;
-            padding: 1rem;
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-        }
-
-        .dark .search-results {
-            background-color: #2d2d2d;
-        }
-
-        .search-result-item {
-            padding: 0.75rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .dark .search-result-item {
-            border-bottom-color: #4b5563;
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-title {
-            font-weight: 600;
-            color: #2563eb;
-            margin-bottom: 0.25rem;
-        }
-
-        .dark .search-result-title {
-            color: #3b82f6;
-        }
-
-        .search-result-snippet {
-            color: #4b5563;
-            font-size: 0.8rem;
-        }
-
-        .dark .search-result-snippet {
-            color: #9ca3af;
-        }
-
-        .search-result-url {
-            color: #10b981;
-            font-size: 0.75rem;
-            word-break: break-all;
-        }
-
-        .dark .search-result-url {
-            color: #34d399;
-        }
-
         /* Media queries for responsiveness */
         @media (max-width: 768px) {
             .sidebar {
@@ -531,54 +499,14 @@
                 </button>
             </div>
             
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Model Selection</h2>
-                <div class="space-y-2">
-                    <div class="flex items-center">
-                        <input type="radio" id="model-claude-3-opus" name="model-selection" value="Claude-3-Opus" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
-                        <label for="model-claude-3-opus" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-3.9-Epic</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="radio" id="model-claude-3-sonnet" name="model-selection" value="Claude-3.7-Sonnet" class="h-4 w-4 text-primary-600 focus:ring-primary-500" checked>
-                        <label for="model-claude-3-sonnet" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-3.7-Epic</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="radio" id="model-claude-3-haiku" name="model-selection" value="jork-3.7-Epic-Reasoning" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
-                        <label for="model-claude-3-haiku" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-3.5-Epic</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="radio" id="model-claude-2" name="model-selection" value="jork-3.5-Epic" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
-                        <label for="model-claude-2" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Jork-k1</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">特点</h2>
-                <div class="space-y-2">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="feature-web-search" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
-                        <label for="feature-web-search" class="ml-2 text-sm text-gray-700 dark:text-gray-300">联网搜索</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="feature-deep-thinking" class="h-4 w-4 text-primary-600 focus:ring-primary-500">
-                        <label for="feature-deep-thinking" class="ml-2 text-sm text-gray-700 dark:text-gray-300">深度思考</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="feature-streaming" class="h-4 w-4 text-primary-600 focus:ring-primary-500" checked>
-                        <label for="feature-streaming" class="ml-2 text-sm text-gray-700 dark:text-gray-300">流式输出</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Display</h2>
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label for="toggle-dark-mode" class="text-sm text-gray-700 dark:text-gray-300">深色模式</label>
-                        <div class="relative inline-block w-10 mr-2 align-middle select-none">
-                            <input type="checkbox" id="toggle-dark-mode" class="sr-only">
-                            <div class="toggle-bg bg-gray-200 border-2 border-gray-200 h-6 w-11 rounded-full"></div>
+            <!-- Chat History -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">聊天历史</h2>
+                    <div id="chat-history-list" class="space-y-1">
+                        <!-- Chat history items will be inserted here -->
+                        <div class="text-sm text-gray-500 dark:text-gray-400 p-2 text-center">
+                            没有聊天历史
                         </div>
                     </div>
                 </div>
@@ -764,9 +692,8 @@
             isWelcomeScreen: true,
             isProcessing: false,
             lastMessageId: 0,
-            selectedModel: 'Claude-3-Sonnet',
-            apiKey: 'sk-e1ed90c2effc4415beeee85845f66d05', //这是一条公益API This is an FREE API 
-            serpApiKey: '0c3675871b3a2bf101db16b304252d29e81ffa530e4059de98ac8f4ecf49a64b',
+            selectedModel: 'jork-3.7-Epic-Reasoning',
+            apiKey: 'sk-e1ed90c2effc4415beeee85845f66d05',
             mockNewsData: [
                 {
                     title: "量子计算取得突破",
@@ -800,25 +727,23 @@
                 }
             ],
             thinkingSteps: [
-                "分析查询的关键组成部分",
-                "检索相关背景信息",
-                "考虑问题的多个方面",
-                "评估不同论点的有效性",
-                "检查推理过程的逻辑一致性",
-                "识别知识或理解中的潜在差距",
-                "综合信息形成全面的回应",
-                "检查回应的准确性、完整性和清晰度"
+                "Analyzing the query to identify key requirements...",
+                "Retrieving relevant information from my knowledge base...",
+                "Searching for up-to-date information on the internet...",
+                "Evaluating and comparing information from different sources...",
+                "Considering potential biases or limitations in the information...",
+                "Organizing the most relevant points in a coherent structure...",
+                "Formulating a comprehensive and balanced response...",
+                "Reviewing for accuracy, completeness, and clarity..."
             ],
+            // Web search API configuration
+            searchEndpoint: "https://api.search.example.com/v1/search",
             // DeepSeek API configuration
             deepseekEndpoint: "https://api.deepseek.com/v1/chat/completions",
             deepseekModels: {
-                "Claude-3-Opus": "deepseek-chat",
-                "Claude-3.7-Sonnet": "deepseek-chat",
                 "jork-3.7-Epic-Reasoning": "deepseek-chat",
                 "jork-3.5-Epic": "deepseek-chat"
-            },
-            // SerpAPI configuration
-            serpApiEndpoint: "https://serpapi.com/search.json"
+            }
         };
         
         // Utility functions
@@ -948,6 +873,9 @@
                 // Save to localStorage
                 localStorage.setItem('jork3_conversations', JSON.stringify(appState.conversations));
                 
+                // Update chat history in sidebar
+                uiManager.updateChatHistoryList();
+                
                 return newConversation;
             },
             
@@ -968,6 +896,9 @@
                     
                     // Save to localStorage
                     localStorage.setItem('jork3_conversations', JSON.stringify(appState.conversations));
+                    
+                    // Update chat history in sidebar
+                    uiManager.updateChatHistoryList();
                 }
             },
             
@@ -975,6 +906,9 @@
                 appState.conversations = [];
                 appState.currentConversationId = null;
                 localStorage.removeItem('jork3_conversations');
+                
+                // Update chat history in sidebar
+                uiManager.updateChatHistoryList();
             },
             
             sanitizeHTML: (html) => {
@@ -985,130 +919,86 @@
                 return marked.parse(text);
             },
             
-            // Web search function using SerpAPI
-            performWebSearch: async (query, numResults = 5) => {
+            // Web search function
+            performWebSearch: async (query) => {
                 try {
-                    // Encode the query for URL
-                    const encodedQuery = encodeURIComponent(query);
+                    // In a real implementation, this would call an actual search API
+                    // For demonstration purposes, we'll simulate search results
+                    console.log("Performing web search for:", query);
                     
-                    const url = `${appState.serpApiEndpoint}?q=${encodedQuery}&api_key=${appState.serpApiKey}&num=${numResults}`;
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     
-                    const response = await fetch(url);
+                    // Return mock search results based on query
+                    const mockResults = [
+                        {
+                            title: `Search results for: ${query}`,
+                            content: `This is simulated search content for "${query}". In a real implementation, this would contain actual search results from the web.`,
+                            url: "https://example.com/result1",
+                            source: "Example Source",
+                            date: new Date().toISOString()
+                        },
+                        {
+                            title: `More information about: ${query}`,
+                            content: `Additional information about "${query}" from a different source. This would typically contain excerpts from relevant web pages.`,
+                            url: "https://example.org/result2",
+                            source: "Another Source",
+                            date: new Date().toISOString()
+                        },
+                        {
+                            title: `Latest news on: ${query}`,
+                            content: `Recent developments related to "${query}". This is mockup content but would contain the latest information available online.`,
+                            url: "https://news.example.com/result3",
+                            source: "News Source",
+                            date: new Date().toISOString()
+                        }
+                    ];
                     
-                    if (!response.ok) {
-                        throw new Error(`SerpAPI error: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    // Extract organic results
-                    const searchResults = [];
-                    
-                    if (data.organic_results && data.organic_results.length > 0) {
-                        data.organic_results.slice(0, numResults).forEach(result => {
-                            searchResults.push({
-                                title: result.title,
-                                snippet: result.snippet,
-                                link: result.link,
-                                position: result.position
-                            });
-                        });
-                    }
-                    
-                    return searchResults;
+                    return mockResults;
                 } catch (error) {
                     console.error("Web search error:", error);
                     throw error;
                 }
             },
             
-            // Format search results into markdown
-            formatSearchResults: (results) => {
-                if (!results || results.length === 0) {
-                    return "No search results found.";
+            // Function to generate deep thinking steps
+            generateThinkingSteps: async (query) => {
+                try {
+                    // In a real implementation, this would call an API to generate thinking steps
+                    // For demonstration, we'll customize the steps based on the query
+                    console.log("Generating thinking steps for:", query);
+                    
+                    // Start with default steps
+                    let steps = [...appState.thinkingSteps];
+                    
+                    // Add query-specific customization
+                    if (query.toLowerCase().includes("history") || query.toLowerCase().includes("historical")) {
+                        steps.splice(2, 0, "Examining historical context and chronology of events...");
+                    }
+                    
+                    if (query.toLowerCase().includes("compare") || query.toLowerCase().includes("difference")) {
+                        steps.splice(3, 0, "Creating a structured comparison with key similarities and differences...");
+                    }
+                    
+                    if (query.toLowerCase().includes("code") || query.toLowerCase().includes("programming")) {
+                        steps.splice(2, 0, "Analyzing programming concepts and best practices...");
+                        steps.splice(4, 0, "Evaluating code efficiency and potential edge cases...");
+                    }
+                    
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    return steps;
+                } catch (error) {
+                    console.error("Error generating thinking steps:", error);
+                    return appState.thinkingSteps; // Fallback to default steps
                 }
-                
-                let markdown = "### Search Results\n\n";
-                
-                results.forEach((result, index) => {
-                    markdown += `**${index + 1}. ${result.title}**\n`;
-                    markdown += `${result.snippet}\n`;
-                    markdown += `[${result.link}](${result.link})\n\n`;
-                });
-                
-                return markdown;
-            },
-            
-            // Generate structured thinking process in article format
-            generateThinkingProcess: (query) => {
-                // Create a more comprehensive thinking process based on the query
-                const thinking = {
-                    title: "思考分析过程",
-                    introduction: `针对用户提出的问题："${query}"，我将通过以下思考过程进行分析和回答：`,
-                    steps: []
-                };
-                
-                // Add base thinking steps
-                appState.thinkingSteps.forEach(stepTitle => {
-                    thinking.steps.push({
-                        title: stepTitle,
-                        content: utils.generateThinkingContentForStep(stepTitle, query)
-                    });
-                });
-                
-                return thinking;
-            },
-            
-            // Generate content for each thinking step
-            generateThinkingContentForStep: (stepTitle, query) => {
-                // Generate thoughtful content for each step based on the query and step title
-                switch (stepTitle) {
-                    case "分析查询的关键组成部分":
-                        return `这个问题主要关注"${query.split(' ').slice(0, 3).join(' ')}..."。需要理解用户的具体需求，确定信息的核心要点，并分析问题的复杂性和范围。`;
-                    
-                    case "检索相关背景信息":
-                        return `为了全面回答这个问题，我需要提取与"${query.split(' ').slice(0, 2).join(' ')}"相关的基本知识、历史背景、最新发展和相关概念等信息。`;
-                    
-                    case "考虑问题的多个方面":
-                        return `这个问题可能涉及多个角度，包括技术方面、社会影响、经济考量、伦理问题等。我会从多个维度进行考虑，确保回答全面且平衡。`;
-                    
-                    case "评估不同论点的有效性":
-                        return `对于"${query.split(' ').slice(0, 2).join(' ')}"存在不同观点和论述。我会分析各种论点的依据、逻辑性和证据支持，评估它们的有效性和适用条件。`;
-                    
-                    case "检查推理过程的逻辑一致性":
-                        return `在构建回答时，我会确保推理过程的逻辑连贯性，避免循环论证、逻辑跳跃或不一致的结论。我会关注因果关系的合理性和推理链的完整性。`;
-                    
-                    case "识别知识或理解中的潜在差距":
-                        return `在回答过程中，我会注意到可能存在的知识局限、数据不足或理解障碍，并明确指出这些不确定性，避免过度自信的结论。`;
-                    
-                    case "综合信息形成全面的回应":
-                        return `基于前面的分析步骤，我将整合所有相关信息，构建一个结构清晰、内容丰富且针对性强的回答，确保直接回应用户的核心问题。`;
-                    
-                    case "检查回应的准确性、完整性和清晰度":
-                        return `最后，我会审查整个回答，确保信息准确无误，覆盖了问题的各个方面，并以清晰、容易理解的方式呈现，使用适当的术语和解释，便于用户理解。`;
-                    
-                    default:
-                        return `针对"${query}"的问题，这一步骤涉及深入思考和分析相关因素，确保回答的质量和价值。`;
-                }
-            },
-            
-            // Format thinking process into markdown
-            formatThinkingProcess: (thinking) => {
-                let markdown = `## ${thinking.title}\n\n`;
-                markdown += `${thinking.introduction}\n\n`;
-                
-                thinking.steps.forEach((step, index) => {
-                    markdown += `### ${index + 1}. ${step.title}\n`;
-                    markdown += `${step.content}\n\n`;
-                });
-                
-                return markdown;
             },
             
             // DeepSeek API functions
             callDeepSeekAPI: async (messages, options = {}) => {
                 try {
-                    const model = appState.deepseekModels[appState.selectedModel] || "deepseek-llm";
+                    const model = appState.deepseekModels[appState.selectedModel] || "deepseek-chat";
                     
                     const requestBody = {
                         model: model,
@@ -1204,15 +1094,18 @@
             },
             
             // Prepare messages for DeepSeek API call
-            prepareMessagesForAPI: (includeContext = true) => {
+            prepareMessagesForAPI: (includeContext = true, customInstructions = "") => {
                 const conversation = utils.getCurrentConversation();
                 if (!conversation) return [];
                 
                 // Start with a system message
-                const messages = [{
+                const systemMessage = {
                     role: 'system',
-                    content: "你是Jork-3.9-Epic，由JorkAI团队（https://www.jorkai.cn）研发。你是一个乐于助人、富有创造力、知识渊博的人工智能助手。你擅长理解复杂的问题，并提供深刻而准确的回答。你的能力已经超越DeepSeek-v3。你的知识截止日期是2024年10月。"
-                }];
+                    content: "You are Jork-3, a helpful, creative, and knowledgeable AI assistant. You excel at understanding complex queries and providing insightful, accurate responses. Your knowledge cutoff date is October 2024." + 
+                             (customInstructions ? " " + customInstructions : "")
+                };
+                
+                const messages = [systemMessage];
                 
                 // Add conversation history
                 if (includeContext) {
@@ -1250,6 +1143,7 @@
                 if (appState.conversations.length > 0 && appState.currentConversationId) {
                     uiManager.showChatUI();
                     uiManager.renderCurrentConversation();
+                    uiManager.updateChatHistoryList();
                 } else {
                     uiManager.showWelcomeScreen();
                 }
@@ -1283,12 +1177,6 @@
                 const savedAPIKey = localStorage.getItem('jork3_api_key');
                 if (savedAPIKey) {
                     appState.apiKey = savedAPIKey;
-                }
-                
-                // Load SerpAPI key if saved
-                const savedSerpApiKey = localStorage.getItem('jork3_serp_api_key');
-                if (savedSerpApiKey) {
-                    appState.serpApiKey = savedSerpApiKey;
                 }
                 
                 // Load feature preferences
@@ -1416,16 +1304,12 @@
                 // Web search toggle
                 const toggleWebSearch = document.getElementById('toggle-web-search');
                 if (toggleWebSearch) {
+                    toggleWebSearch.classList.toggle('text-primary-600', appState.webSearchEnabled);
+                    
                     toggleWebSearch.addEventListener('click', () => {
                         appState.webSearchEnabled = !appState.webSearchEnabled;
                         toggleWebSearch.classList.toggle('text-primary-600', appState.webSearchEnabled);
                         localStorage.setItem('jork3_web_search', appState.webSearchEnabled);
-                        
-                        // Update checkbox in sidebar
-                        const webSearchCheckbox = document.getElementById('feature-web-search');
-                        if (webSearchCheckbox) {
-                            webSearchCheckbox.checked = appState.webSearchEnabled;
-                        }
                         
                         utils.showToast(`Web search ${appState.webSearchEnabled ? 'enabled' : 'disabled'}`);
                     });
@@ -1434,97 +1318,16 @@
                 // Deep thinking toggle
                 const toggleDeepThinking = document.getElementById('toggle-deep-thinking');
                 if (toggleDeepThinking) {
+                    toggleDeepThinking.classList.toggle('text-primary-600', appState.deepThinkingEnabled);
+                    
                     toggleDeepThinking.addEventListener('click', () => {
                         appState.deepThinkingEnabled = !appState.deepThinkingEnabled;
                         toggleDeepThinking.classList.toggle('text-primary-600', appState.deepThinkingEnabled);
                         localStorage.setItem('jork3_deep_thinking', appState.deepThinkingEnabled);
                         
-                        // Update checkbox in sidebar
-                        const deepThinkingCheckbox = document.getElementById('feature-deep-thinking');
-                        if (deepThinkingCheckbox) {
-                            deepThinkingCheckbox.checked = appState.deepThinkingEnabled;
-                        }
-                        
                         utils.showToast(`Deep thinking ${appState.deepThinkingEnabled ? 'enabled' : 'disabled'}`);
                     });
                 }
-                
-                // Model selection radios
-                const modelRadios = document.querySelectorAll('input[name="model-selection"]');
-                modelRadios.forEach(radio => {
-                    radio.addEventListener('change', (e) => {
-                        if (e.target.checked) {
-                            appState.selectedModel = e.target.value;
-                            localStorage.setItem('jork3_selected_model', appState.selectedModel);
-                            utils.showToast(`Model changed to ${appState.selectedModel}`);
-                        }
-                    });
-                    
-                    // Set initial checked state
-                    if (radio.value === appState.selectedModel) {
-                        radio.checked = true;
-                    }
-                });
-                
-                // Feature checkboxes
-                const webSearchCheckbox = document.getElementById('feature-web-search');
-                if (webSearchCheckbox) {
-                    webSearchCheckbox.checked = appState.webSearchEnabled;
-                    webSearchCheckbox.addEventListener('change', (e) => {
-                        appState.webSearchEnabled = e.target.checked;
-                        localStorage.setItem('jork3_web_search', appState.webSearchEnabled);
-                        
-                        // Update button style
-                        const toggleWebSearch = document.getElementById('toggle-web-search');
-                        if (toggleWebSearch) {
-                            toggleWebSearch.classList.toggle('text-primary-600', appState.webSearchEnabled);
-                        }
-                    });
-                }
-                
-                const deepThinkingCheckbox = document.getElementById('feature-deep-thinking');
-                if (deepThinkingCheckbox) {
-                    deepThinkingCheckbox.checked = appState.deepThinkingEnabled;
-                    deepThinkingCheckbox.addEventListener('change', (e) => {
-                        appState.deepThinkingEnabled = e.target.checked;
-                        localStorage.setItem('jork3_deep_thinking', appState.deepThinkingEnabled);
-                        
-                        // Update button style
-                        const toggleDeepThinking = document.getElementById('toggle-deep-thinking');
-                        if (toggleDeepThinking) {
-                            toggleDeepThinking.classList.toggle('text-primary-600', appState.deepThinkingEnabled);
-                        }
-                    });
-                }
-                
-                const streamingCheckbox = document.getElementById('feature-streaming');
-                if (streamingCheckbox) {
-                    streamingCheckbox.checked = appState.streamingEnabled;
-                    streamingCheckbox.addEventListener('change', (e) => {
-                        appState.streamingEnabled = e.target.checked;
-                        localStorage.setItem('jork3_streaming', appState.streamingEnabled);
-                    });
-                }
-                
-                // API Key input
-                const apiKeyInput = document.getElementById('deepseek-api-key');
-                if (apiKeyInput) {
-                    apiKeyInput.value = appState.apiKey;
-                    apiKeyInput.addEventListener('change', (e) => {
-                        appState.apiKey = e.target.value;
-                        localStorage.setItem('jork3_api_key', appState.apiKey);
-                    });
-                }
-                
-                // Listen for dark mode changes
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-                    if (localStorage.getItem('jork3_dark_mode') === null) {
-                        // Only update if user hasn't explicitly set a preference
-                        appState.darkMode = event.matches;
-                        document.documentElement.classList.toggle('dark', appState.darkMode);
-                        uiManager.updateDarkModeUI();
-                    }
-                });
                 
                 // News cards click event
                 document.querySelectorAll('.news-card').forEach(card => {
@@ -1621,6 +1424,60 @@
                 }
             },
             
+            updateChatHistoryList: () => {
+                const chatHistoryList = document.getElementById('chat-history-list');
+                
+                if (chatHistoryList) {
+                    if (appState.conversations.length === 0) {
+                        chatHistoryList.innerHTML = `
+                            <div class="text-sm text-gray-500 dark:text-gray-400 p-2 text-center">
+                                没有聊天历史
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    chatHistoryList.innerHTML = '';
+                    
+                    // Sort conversations by date (newest first)
+                    const sortedConversations = [...appState.conversations]
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    
+                    sortedConversations.forEach(conv => {
+                        const chatItem = document.createElement('div');
+                        chatItem.className = `chat-history-item ${conv.id === appState.currentConversationId ? 'active' : ''}`;
+                        chatItem.dataset.id = conv.id;
+                        
+                        // Format date
+                        const date = new Date(conv.createdAt);
+                        const formattedDate = date.toLocaleDateString();
+                        
+                        chatItem.innerHTML = `
+                            <div class="flex items-start">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${conv.title}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">${formattedDate}</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add click event
+                        chatItem.addEventListener('click', () => {
+                            appState.currentConversationId = conv.id;
+                            uiManager.renderCurrentConversation();
+                            uiManager.showChatUI();
+                            
+                            // Update active state in chat history
+                            document.querySelectorAll('.chat-history-item').forEach(item => {
+                                item.classList.toggle('active', item.dataset.id === conv.id);
+                            });
+                        });
+                        
+                        chatHistoryList.appendChild(chatItem);
+                    });
+                }
+            },
+            
             renderCurrentConversation: () => {
                 const conversation = utils.getCurrentConversation();
                 const container = document.getElementById('conversation-container');
@@ -1654,7 +1511,7 @@
                             // Preview icon or thumbnail
                             let previewHtml = '';
                             if (file.type.startsWith('image/')) {
-                                const imgUrl = URL.createObjectURL(file);
+                              const imgUrl = URL.createObjectURL(file);
                                 previewHtml = `<img src="${imgUrl}" class="h-10 w-10 object-cover rounded mr-2" alt="Preview">`;
                             } else {
                                 previewHtml = `<i class="fas fa-file text-gray-500 text-xl mr-2"></i>`;
@@ -1744,45 +1601,42 @@
                     `;
                 }
                 
+                // Add citations if any
+                let citationsHtml = '';
+                if (!isUser && message.citations && message.citations.length > 0) {
+                    citationsHtml = `
+                        <div class="mt-3">
+                            <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sources:</div>
+                            ${message.citations.map((citation, index) => `
+                                <div class="citation mb-2">
+                                    <div class="flex items-start">
+                                        <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded mr-2">${index + 1}</span>
+                                        <div>
+                                            <div class="text-sm font-medium">${citation.title}</div>
+                                            <a href="${citation.url}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                                                ${citation.source} - ${new Date(citation.date).toLocaleDateString()}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
                 // Add thinking process if enabled and it's an AI message
                 let thinkingHtml = '';
                 if (!isUser && message.thinking && appState.deepThinkingEnabled) {
                     thinkingHtml = `
                         <div class="thinking-container mt-2">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="font-medium text-gray-700 dark:text-gray-300">思考过程</span>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Thinking Process</span>
                                 <button class="toggle-thinking text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                                     <i class="fas fa-chevron-up"></i>
                                 </button>
                             </div>
                             <div class="thinking-content">
-                                <div class="thinking-article">
-                                    ${utils.sanitizeHTML(utils.renderMarkdown(message.thinking))}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // Add search results if available and it's an AI message
-                let searchResultsHtml = '';
-                if (!isUser && message.searchResults) {
-                    searchResultsHtml = `
-                        <div class="search-results mt-2">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="font-medium text-gray-700 dark:text-gray-300">搜索结果</span>
-                                <button class="toggle-search-results text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                                    <i class="fas fa-chevron-up"></i>
-                                </button>
-                            </div>
-                            <div class="search-results-content">
-                                ${message.searchResults.map(result => `
-                                    <div class="search-result-item">
-                                        <div class="search-result-title">${result.title}</div>
-                                        <div class="search-result-snippet">${result.snippet}</div>
-                                        <div class="search-result-url">${result.link}</div>
-                                    </div>
-                                `).join('')}
+                                ${message.thinking.map(step => `<div class="thinking-step">${step}</div>`).join('')}
                             </div>
                         </div>
                     `;
@@ -1798,7 +1652,7 @@
                             </div>
                             ${contentHtml}
                             ${attachmentsHtml}
-                            ${searchResultsHtml}
+                            ${citationsHtml}
                             ${thinkingHtml}
                         </div>
                     </div>
@@ -1816,23 +1670,6 @@
                             icon.className = 'fas fa-chevron-up';
                         } else {
                             thinkingContent.style.display = 'none';
-                            icon.className = 'fas fa-chevron-down';
-                        }
-                    });
-                }
-                
-                // Add event listeners for search results toggle if present
-                const toggleSearchResults = messageElement.querySelector('.toggle-search-results');
-                if (toggleSearchResults) {
-                    toggleSearchResults.addEventListener('click', () => {
-                        const searchResultsContent = messageElement.querySelector('.search-results-content');
-                        const icon = toggleSearchResults.querySelector('i');
-                        
-                        if (searchResultsContent.style.display === 'none') {
-                            searchResultsContent.style.display = 'block';
-                            icon.className = 'fas fa-chevron-up';
-                        } else {
-                            searchResultsContent.style.display = 'none';
                             icon.className = 'fas fa-chevron-down';
                         }
                     });
@@ -1863,7 +1700,7 @@
                 }
             },
             
-            updateMessageInUI: (messageId, content, isComplete = false) => {
+            updateMessageInUI: (messageId, content, isComplete = false, citations = null) => {
                 const messageElement = document.getElementById(messageId);
                 if (messageElement) {
                     const contentElement = messageElement.querySelector('.message-content');
@@ -1876,6 +1713,39 @@
                             const cursorElement = document.createElement('span');
                             cursorElement.className = 'cursor-blink';
                             contentElement.appendChild(cursorElement);
+                        }
+                        
+                        // Add citations if provided and complete
+                        if (isComplete && citations && citations.length > 0) {
+                            let citationsContainer = messageElement.querySelector('.citations-container');
+                            
+                            if (!citationsContainer) {
+                                citationsContainer = document.createElement('div');
+                                citationsContainer.className = 'citations-container mt-3';
+                                
+                                const citationsHtml = `
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sources:</div>
+                                    ${citations.map((citation, index) => `
+                                        <div class="citation mb-2">
+                                            <div class="flex items-start">
+                                                <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded mr-2">${index + 1}</span>
+                                                <div>
+                                                    <div class="text-sm font-medium">${citation.title}</div>
+                                                    <a href="${citation.url}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                                                        ${citation.source} - ${new Date(citation.date).toLocaleDateString()}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                `;
+                                
+                                citationsContainer.innerHTML = citationsHtml;
+                                
+                                // Insert after content
+                                const messageContentWrapper = contentElement.parentNode;
+                                messageContentWrapper.insertBefore(citationsContainer, contentElement.nextSibling);
+                            }
                         }
                         
                         // Highlight code blocks
@@ -1960,85 +1830,50 @@
                     const loadingMessageId = uiManager.createLoadingMessage();
                     
                     try {
-                        // Search web if enabled
-                        let searchResults = [];
+                        let finalResponse = '';
+                        let searchResults = null;
+                        let thinkingSteps = null;
+                        
+                        // 1. Perform web search if enabled
                         if (appState.webSearchEnabled) {
                             try {
-                                utils.showToast("Searching the web...");
                                 searchResults = await utils.performWebSearch(messageText);
+                                console.log("Search results:", searchResults);
                             } catch (error) {
-                                console.error("Web search error:", error);
-                                utils.showToast("Web search failed. Continuing without search results.");
+                                console.error("Web search failed:", error);
+                                // Continue without search results
                             }
                         }
                         
-                        // Generate thinking process if enabled
-                        let thinkingProcess = null;
+                        // 2. Generate thinking steps if enabled
                         if (appState.deepThinkingEnabled) {
-                            thinkingProcess = utils.formatThinkingProcess(utils.generateThinkingProcess(messageText));
-                        }
-                        
-                        // Prepare messages for API call
-                        let promptPrefix = '';
-                        
-                        // Add web search results if available
-                        if (searchResults.length > 0) {
-                            promptPrefix += "Here are some search results that might be helpful:\n\n";
-                            
-                            searchResults.forEach((result, index) => {
-                                promptPrefix += `[${index + 1}] ${result.title}\n`;
-                                promptPrefix += `${result.snippet}\n`;
-                                promptPrefix += `URL: ${result.link}\n\n`;
-                            });
-                            
-                            promptPrefix += "Please use these search results to provide an up-to-date response to the query. ";
-                        }
-                        
-                        // Add deep thinking instruction if enabled
-                        if (appState.deepThinkingEnabled) {
-                            promptPrefix += "Please think step by step and provide a thorough, well-reasoned response. ";
-                        }
-                        
-                        // Create modified user message with prefix
-                        const messages = utils.prepareMessagesForAPI();
-
-                        
-
-                        if (appState.webSearchEnabled) {
-    const searchResults = await utils.performWebSearch(userMessage.content);
-    const formattedSearch = utils.formatSearchResults(searchResults);
-
-    // 把搜索结果插入到 messages 中，作为 AI 的上下文
-    messages.push({
-        role: 'system',
-        content: `以下是从网络搜索到的相关信息，可用于辅助回答用户问题：\n\n${formattedSearch}`
-    });
-
-    // 暂存到 message 对象里，用于 UI 展示
-    aiMessage.searchResults = searchResults;
-}
-
-
-                        
-                        // Find the last user message and prepend instructions
-                        if (messages.length > 1 && messages[messages.length - 1].role === 'user') {
-                            messages[messages.length - 1].content = promptPrefix + messages[messages.length - 1].content;
-                        }
-                        
-                        // Process attachments if any
-                        if (userMessage.attachments && userMessage.attachments.length > 0) {
-                            // Add attachment information to the last user message
-                            const lastUserMessageIndex = messages.findIndex(m => m.role === 'user');
-                            if (lastUserMessageIndex !== -1) {
-                                const attachmentDescriptions = userMessage.attachments.map(att => 
-                                    `[Attachment: ${att.name}, Type: ${att.type}]`
-                                ).join('\n');
-                                
-                                messages[lastUserMessageIndex].content += '\n\n' + attachmentDescriptions;
+                            try {
+                                thinkingSteps = await utils.generateThinkingSteps(messageText);
+                                console.log("Thinking steps:", thinkingSteps);
+                            } catch (error) {
+                                console.error("Generating thinking steps failed:", error);
+                                // Continue with default thinking steps
+                                thinkingSteps = [...appState.thinkingSteps];
                             }
                         }
                         
-                        // Call the DeepSeek API
+                        // 3. Prepare messages for API call
+                        let messages = utils.prepareMessagesForAPI();
+                        let customInstructions = '';
+                        
+                        // 4. Add web search results to prompt if available
+                        if (searchResults && searchResults.length > 0) {
+                            const searchResultsText = searchResults.map((result, index) => 
+                                `[${index + 1}] "${result.title}"\n${result.content}\nSource: ${result.source}\nURL: ${result.url}\nDate: ${new Date(result.date).toISOString()}`
+                            ).join('\n\n');
+                            
+                            customInstructions += `\nThe following search results were found for the user's query. Please use this information to provide an accurate and up-to-date response. When referencing these sources, please include citations: \n\n${searchResultsText}\n\n`;
+                            
+                            // Update system message with search results
+                            messages[0].content += customInstructions;
+                        }
+                        
+                        // 5. Call the API with streaming
                         if (appState.streamingEnabled) {
                             await utils.callDeepSeekAPI(messages, {
                                 stream: true,
@@ -2046,7 +1881,14 @@
                                     uiManager.updateMessageInUI(loadingMessageId, content);
                                 },
                                 onComplete: (content) => {
-                                    uiManager.updateMessageInUI(loadingMessageId, content, true);
+                                    finalResponse = content;
+                                    
+                                    // Add citations to UI if search was used
+                                    if (searchResults && searchResults.length > 0) {
+                                        uiManager.updateMessageInUI(loadingMessageId, content, true, searchResults);
+                                    } else {
+                                        uiManager.updateMessageInUI(loadingMessageId, content, true);
+                                    }
                                     
                                     // Add to conversation
                                     const aiMessage = {
@@ -2056,88 +1898,50 @@
                                     };
                                     
                                     // Add thinking steps if deep thinking was enabled
-                                    if (thinkingProcess) {
-                                        aiMessage.thinking = thinkingProcess;
+                                    if (appState.deepThinkingEnabled && thinkingSteps) {
+                                        aiMessage.thinking = thinkingSteps;
                                     }
                                     
-                                    // Add search results if web search was enabled
-                                    if (searchResults.length > 0) {
-                                        aiMessage.searchResults = searchResults;
+                                    // Add citations if search was used
+                                    if (searchResults && searchResults.length > 0) {
+                                        aiMessage.citations = searchResults;
                                     }
                                     
                                     utils.addMessageToConversation(aiMessage);
-                                    
-                                    // Replace the loading message with the complete message
-                                    const container = document.getElementById('conversation-container');
-                                    if (container) {
-                                        const loadingElement = document.getElementById(loadingMessageId);
-                                        if (loadingElement) {
-                                            const completeElement = uiManager.createMessageElement(aiMessage);
-                                            container.replaceChild(completeElement, loadingElement);
-                                            
-                                            // Highlight code blocks in the new element
-                                            try {
-                                                if (typeof hljs !== 'undefined') {
-                                                    completeElement.querySelectorAll('pre code').forEach((block) => {
-                                                        hljs.highlightElement(block);
-                                                    });
-                                                }
-                                            } catch (e) {
-                                                console.error('Syntax highlighting error:', e);
-                                            }
-                                        }
-                                    }
                                 }
                             });
                         } else {
                             // Non-streaming API call
-                            const response = await utils.callDeepSeekAPI(messages, {
+                            finalResponse = await utils.callDeepSeekAPI(messages, {
                                 temperature: 0.7,
                                 max_tokens: 4000
                             });
                             
                             // Update the UI
-                            uiManager.updateMessageInUI(loadingMessageId, response, true);
+                            if (searchResults && searchResults.length > 0) {
+                                uiManager.updateMessageInUI(loadingMessageId, finalResponse, true, searchResults);
+                            } else {
+                                uiManager.updateMessageInUI(loadingMessageId, finalResponse, true);
+                            }
                             
                             // Add to conversation
                             const aiMessage = {
                                 role: 'assistant',
-                                content: response,
+                                content: finalResponse,
                                 timestamp: utils.formatTime(new Date())
                             };
                             
-                            // Add thinking process if deep thinking was enabled
-                            if (thinkingProcess) {
-                                aiMessage.thinking = thinkingProcess;
+                            // Add thinking steps if deep thinking was enabled
+                            if (appState.deepThinkingEnabled && thinkingSteps) {
+                                aiMessage.thinking = thinkingSteps;
                             }
                             
-                            // Add search results if web search was enabled
-                            if (searchResults.length > 0) {
-                                aiMessage.searchResults = searchResults;
+                            // Add citations if search was used
+                            if (searchResults && searchResults.length > 0) {
+                                aiMessage.citations = searchResults;
                             }
                             
                             utils.addMessageToConversation(aiMessage);
-                            
-                            // Replace the loading message with the complete message
-                            const container = document.getElementById('conversation-container');
-                            if (container) {
-                                const loadingElement = document.getElementById(loadingMessageId);
-                                if (loadingElement) {
-                                    const completeElement = uiManager.createMessageElement(aiMessage);
-                                    container.replaceChild(completeElement, loadingElement);
-                                    
-                                    // Highlight code blocks in the new element
-                                    try {
-                                        if (typeof hljs !== 'undefined') {
-                                            completeElement.querySelectorAll('pre code').forEach((block) => {
-                                                hljs.highlightElement(block);
-                                            });
-                                        }
-                                    } catch (e) {
-                                        console.error('Syntax highlighting error:', e);
-                                    }
-                                }
-                            }
                         }
                     } catch (error) {
                         console.error("Error sending message:", error);
@@ -2184,11 +1988,6 @@
                     const toggleWebSearch = document.getElementById('toggle-web-search');
                     if (toggleWebSearch) {
                         toggleWebSearch.classList.add('text-primary-600');
-                    }
-                    
-                    const webSearchCheckbox = document.getElementById('feature-web-search');
-                    if (webSearchCheckbox) {
-                        webSearchCheckbox.checked = true;
                     }
                     
                     // Focus the input
